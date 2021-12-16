@@ -59,6 +59,7 @@ ForEach ($proc in $jave_proc){
     
     $obj
     $data = "{0},{1},{2},{3},{4},{5},{6},{7},{8}" -f $obj.computername, $obj.name, $obj.path, $obj.PID, $obj.localAddress, $obj.localport, $obj.remoteaddress,$obj.remoteport,$obj.state
-    add-content $file $data
+    add-content -path $file -value $data
+    add-content 
 
 }
