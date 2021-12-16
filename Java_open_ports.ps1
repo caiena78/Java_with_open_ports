@@ -32,21 +32,28 @@ $jave_proc = Get-Process |  Where-Object {$_.Path -like '*java*'}
 $connections= Get-NetTCPConnection
 $htconn=@{}
 $cnt=0
+
+#Build a Hashtable with all the connection process id's
 foreach ($con in $connections){    
+    # skip over duplicates
    if ($htconn[[string] $con.OwningProcess] -eq $null ){        
         $htconn.Add([string] $con.OwningProcess, $cnt)        
    }
    $cnt++
 }
 
+# loop through all of these process that have Java in the path
 ForEach ($proc in $jave_proc){
+    #build and objec to hold the process
     $obj = "" | select-object computername,name,path,PID,localaddress,localport,remoteaddress,remoteport,state  
+    #search for the process id in the has table to get the index
     $netidx=$htconn[[string] $proc.id]
     if ( $netidx -eq $null ){       
+        #if the process id is not found skip to the next on 
         continue   
     }
     
-    $connections[$netidx]
+    #Build the output object
     $obj.computername = hostname 
     $obj.name = $proc.name
     $obj.path = $proc.path
@@ -57,8 +64,11 @@ ForEach ($proc in $jave_proc){
     $obj.remoteport = $connections[$netidx].remoteport
     $obj.state = $connections[$netidx].state
     
+    #print the object to the console
     $obj
+
     $data = "{0},{1},{2},{3},{4},{5},{6},{7},{8}" -f $obj.computername, $obj.name, $obj.path, $obj.PID, $obj.localAddress, $obj.localport, $obj.remoteaddress,$obj.remoteport,$obj.state
+    #write the data to a file
     add-content -path $file -value $data    
 
 }
